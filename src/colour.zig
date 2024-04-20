@@ -12,12 +12,11 @@ pub const Colours = struct {
     bg: Colour,
 };
 
-pub fn colourPrintLine(writer: anytype, colours: Colours, str: []const u8) !void {
+pub fn print(writer: anytype, colours: Colours, str: []const u8) !void {
     try ansiFg(writer, colours.fg);
     try ansiBg(writer, colours.bg);
     try writer.writeAll(str);
     try ansiReset(writer);
-    try writer.writeAll("\n");
 }
 
 fn ansiFg(writer: anytype, colour: Colour) !void {

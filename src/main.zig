@@ -1,8 +1,7 @@
 const std = @import("std");
 const fmt = std.fmt;
 
-const colour = @import("colour.zig");
-const colourPrintLine = colour.colourPrintLine;
+const clr = @import("colour.zig");
 
 const date = @import("date.zig");
 
@@ -22,6 +21,9 @@ pub fn main() !void {
     }
     try cout.print("cols: {d}\n", .{user_input.cols});
 
+    var root = bar.Node.init(0, allocator);
+    defer root.deinit();
+
     var first_date: ?date.Date = null;
     var last_date: ?date.Date = null;
 
@@ -29,10 +31,17 @@ pub fn main() !void {
     var income_cents: i64 = 0;
 
     const cin = std.io.getStdIn().reader();
-    while (cin.readUntilDelimiterAlloc(allocator, '\n', 2048)) |buf| {
-        defer allocator.free(buf);
+    const storage = try cin.readAllAlloc(allocator, std.math.maxInt(usize));
+    defer allocator.free(storage);
 
-        var csvs = std.mem.split(u8, buf, ",");
+    var lines = std.mem.split(u8, storage, "\n");
+
+    while (lines.next()) |line| {
+        if (line.len == 0) {
+            continue;
+        }
+
+        var csvs = std.mem.split(u8, line, ",");
 
         if (csvs.next()) |token| {
             const date_val = try date.parseDate(token);
@@ -50,17 +59,20 @@ pub fn main() !void {
         }
 
         var expense = true;
-        if (csvs.next()) |token| {
-            const expenses_prefix = "expenses:";
-            const income_prefix = "income:";
-            if (std.mem.startsWith(u8, token, expenses_prefix)) {
-                expense = true;
-            } else if (std.mem.startsWith(u8, token, income_prefix)) {
-                expense = false;
+        const account = blk: {
+            if (csvs.next()) |token| {
+                const expenses_prefix = "expenses:";
+                const income_prefix = "income:";
+                if (std.mem.startsWith(u8, token, expenses_prefix)) {
+                    expense = true;
+                } else if (std.mem.startsWith(u8, token, income_prefix)) {
+                    expense = false;
+                }
+                break :blk token;
+            } else {
+                return error.ExpectedAccount;
             }
-        } else {
-            return error.ExpectedAccount;
-        }
+        };
 
         if (csvs.next()) |token| {
             var dci = std.mem.split(u8, token, ".");
@@ -80,12 +92,11 @@ pub fn main() !void {
                 income_cents += amount;
             }
 
+            try root.add(account, amount);
+
         } else {
             return error.ExpectedAmount;
         }
-
-    } else |err| if (err != error.EndOfStream) {
-        return err;
     }
 
     try cout.print("days: {d}\n", .{ last_date.?.distance(first_date.?) + 1 });
@@ -93,18 +104,19 @@ pub fn main() !void {
     try cout.print("expenses: {d}\n", .{expenses_cents});
     try cout.print("income: {d}\n", .{income_cents});
 
-    const colours: colour.Colours = .{
-        .fg = colour.Colour{
+    const colours: clr.Colours = .{
+        .fg = clr.Colour{
             .r = 255, .b = 255, .g = 255
         },
-        .bg = colour.Colour{
+        .bg = clr.Colour{
             .r = 64, .b = 8, .g = 64
         }
     };
 
-    try colourPrintLine(cout, colours, "      ");
-    try colourPrintLine(cout, colours, " tax  ");
-    try colourPrintLine(cout, colours, "      ");
+    try clr.print(cout, colours, "  tax  ");
+    try cout.print("\n", .{});
+    try clr.print(cout, colours, " $100  ");
+    try cout.print("\n", .{});
 
     // var graph: bar.BarGraph = .{ .divisions = std.ArrayList(bar.BarGraph.Division).init(allocator) };
     // defer graph.divisions.deinit();
