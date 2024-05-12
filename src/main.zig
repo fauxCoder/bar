@@ -21,7 +21,7 @@ pub fn main() !void {
     }
     try cout.print("cols: {d}\n", .{user_input.cols});
 
-    var root = bar.Node.init(0, allocator);
+    var root = bar.Node.init("", 0, allocator);
     defer root.deinit();
 
     var first_date: ?date.Date = null;
@@ -99,24 +99,26 @@ pub fn main() !void {
         }
     }
 
+    try root.show(0);
+
     try cout.print("days: {d}\n", .{ last_date.?.distance(first_date.?) + 1 });
 
     try cout.print("expenses: {d}\n", .{expenses_cents});
     try cout.print("income: {d}\n", .{income_cents});
 
-    const colours: clr.Colours = .{
-        .fg = clr.Colour{
-            .r = 255, .b = 255, .g = 255
-        },
-        .bg = clr.Colour{
-            .r = 64, .b = 8, .g = 64
-        }
-    };
+    //const colours: clr.Colours = .{
+    //    .fg = clr.Colour{
+    //        .r = 255, .b = 255, .g = 255
+    //    },
+    //    .bg = clr.Colour{
+    //        .r = 64, .b = 8, .g = 64
+    //    }
+    //};
 
-    try clr.print(cout, colours, "  tax  ");
-    try cout.print("\n", .{});
-    try clr.print(cout, colours, " $100  ");
-    try cout.print("\n", .{});
+    //try clr.print(cout, colours, "  tax  ");
+    //try cout.print("\n", .{});
+    //try clr.print(cout, colours, " $100  ");
+    //try cout.print("\n", .{});
 
     // var graph: bar.BarGraph = .{ .divisions = std.ArrayList(bar.BarGraph.Division).init(allocator) };
     // defer graph.divisions.deinit();
