@@ -53,7 +53,6 @@ pub fn main() !void {
             if (last_date == null or last_date.?.lessThan(date_val)) {
                 last_date = date_val;
             }
-
         } else {
             return error.ExpectedDate;
         }
@@ -93,38 +92,13 @@ pub fn main() !void {
             }
 
             try root.add(account, amount);
-
         } else {
             return error.ExpectedAmount;
         }
     }
 
-    try root.show(0);
-
-    try cout.print("days: {d}\n", .{ last_date.?.distance(first_date.?) + 1 });
-
-    try cout.print("expenses: {d}\n", .{expenses_cents});
-    try cout.print("income: {d}\n", .{income_cents});
-
-    //const colours: clr.Colours = .{
-    //    .fg = clr.Colour{
-    //        .r = 255, .b = 255, .g = 255
-    //    },
-    //    .bg = clr.Colour{
-    //        .r = 64, .b = 8, .g = 64
-    //    }
-    //};
-
-    //try clr.print(cout, colours, "  tax  ");
-    //try cout.print("\n", .{});
-    //try clr.print(cout, colours, " $100  ");
-    //try cout.print("\n", .{});
-
-    // var graph: bar.BarGraph = .{ .divisions = std.ArrayList(bar.BarGraph.Division).init(allocator) };
-    // defer graph.divisions.deinit();
-    // try graph.divisions.append(.{ .names = std.ArrayList(bar.BarGraph.Division.Name).init(allocator) });
-    // defer graph.divisions.items[0].names.deinit();
-    // try graph.divisions.items[0].names.append(.{ .name = "tax", .amount = 5000 });
+    var colour_index: usize = 0;
+    try root.printGraph(user_input.cols, &colour_index, cout);
 }
 
 const UserInput = struct {

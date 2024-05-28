@@ -13,20 +13,25 @@ pub const Colours = struct {
 };
 
 pub fn print(writer: anytype, colours: Colours, str: []const u8) !void {
-    try ansiFg(writer, colours.fg);
     try ansiBg(writer, colours.bg);
+    try ansiFg(writer, colours.fg);
     try writer.writeAll(str);
     try ansiReset(writer);
 }
 
-fn ansiFg(writer: anytype, colour: Colour) !void {
-    try writer.print("\x1b[38;2;{};{};{}m", .{ colour.r, colour.g, colour.b });
-}
-
-fn ansiBg(writer: anytype, colour: Colour) !void {
+pub fn ansiBg(writer: anytype, colour: Colour) !void {
     try writer.print("\x1b[48;2;{};{};{}m", .{ colour.r, colour.g, colour.b });
 }
 
-fn ansiReset(writer: anytype) !void {
+pub fn ansiFg(writer: anytype, colour: Colour) !void {
+    try writer.print("\x1b[38;2;{};{};{}m", .{ colour.r, colour.g, colour.b });
+}
+
+pub fn ansiBgFg(writer: anytype, colour_bg: Colour, colour_fg: Colour) !void {
+    try writer.print("\x1b[48;2;{};{};{}m", .{ colour_bg.r, colour_bg.g, colour_bg.b });
+    try writer.print("\x1b[38;2;{};{};{}m", .{ colour_fg.r, colour_fg.g, colour_fg.b });
+}
+
+pub fn ansiReset(writer: anytype) !void {
     try writer.writeAll("\x1b[0m");
 }
