@@ -13,7 +13,7 @@ fn generateColour(i: usize) clr.Colour {
     const boost = 70;
     const baselines = [_]u8{ 150, 60, 70 };
     var rand = std.rand.DefaultPrng.init(64 *% i + 1);
-    return clr.Colour{
+    return .{
         .r = baselines[@mod(i + 0, 3)] + rand.random().uintAtMost(u8, boost),
         .g = baselines[@mod(i + 1, 3)] + rand.random().uintAtMost(u8, boost),
         .b = baselines[@mod(i + 2, 3)] + rand.random().uintAtMost(u8, boost),
@@ -170,14 +170,14 @@ pub const Node = struct {
             try divisions.append(zero_division);
         }
 
-        // 3rd pass: calculate final portions
+        // 3rd pass: calculate portions
         for (divisions.items) |*div| {
             const portion = @divFloor(width * @abs(div.amount), amounts_total);
             div.portion += portion;
             current_spend += portion;
         }
 
-        // 4th pass: increase portions to fill width
+        // 4th pass: increase portions to fill remaining width
         for (divisions.items) |*div| {
             if (current_spend < width) {
                 div.portion += 1;
